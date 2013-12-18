@@ -1,0 +1,22 @@
+hotpgen: generate new HOTP key values from the command line
+
+Usage:
+
+	hotpgen [-d digits] [-p password] [-r] [label]
+                -d digits       Specify the number of digits to
+                		use, typically 6 or 8; defaults
+				to 6.
+
+		-r		Randomise the initial counter;
+				defaults to false as this is
+				not supported by all clients.
+
+		label		An optional label for the key;
+				for example, an email address
+				or username.
+
+The program will dump out two files; a PNG image and a text file.
+The text file contains the URL encoded in the QR code; the QR code
+may be displayed to users to scan into their mobile apps. If a label
+is provided, the files are named by the label (e.g. label.png and
+label.txt); otherwise, the files are named as the base32-encoded URL.
