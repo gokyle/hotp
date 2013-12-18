@@ -21,9 +21,7 @@ import (
 // RFC 4226 specifies the counter as being 8 bytes.
 const ctrSize = 8
 
-var (
-	ErrInvalidHOTPURL = errors.New("hotp: invalid HOTP url")
-)
+var ErrInvalidHOTPURL = errors.New("hotp: invalid HOTP url")
 
 // Type HOTP represents a new source for generating one-time passwords.
 type HOTP struct {
