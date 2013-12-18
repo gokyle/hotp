@@ -26,27 +26,6 @@ func TestIncrement(t *testing.T) {
 	}
 }
 
-// This test ensures that the zero pad will always produce counter-sized byte
-// slices.
-func TestZeroPad(t *testing.T) {
-	var max = ctrSize * 2
-	var testIns = make([][]byte, max)
-	for i := 0; i < max; i++ {
-		testIns[i] = make([]byte, i)
-		for j := 0; j < i; j++ {
-			testIns[i][j] = 'A'
-		}
-	}
-
-	for i := 0; i < max; i++ {
-		out := zeroPad(testIns[i])
-		if len(out) != ctrSize {
-			fmt.Printf("hotp: zeroPad should always produce %d-byte slices", ctrSize)
-			t.FailNow()
-		}
-	}
-}
-
 var sha1Hmac = []byte{
 	0x1f, 0x86, 0x98, 0x69, 0x0e,
 	0x02, 0xca, 0x16, 0x61, 0x85,

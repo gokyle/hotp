@@ -146,16 +146,7 @@ into raw output from yubikey / the code / the counter):
 
 ### Test Coverage
 
-Test coverage is currently at 96.9%; there are six lines of code
-not presently covered by tests. These six lines pertain to reading
-and writing to the counter, which is stored internally as a fixed-size
-array but is presented to the world as an unsigned 64-bit integer. The
-array is fixed at 8 bytes, but all of the errors check for potential
-errors from the `encoding/binary.{Read,Write}` functions. Given
-that the array is fixed to the size of a 64-bit integer, there
-shouldn't be any way (that I can think of) for this to fail.
-Nevertheless, in the event of unforseen bugs, this error checking
-remains. I just can't figure out how to trigger it in the tests.
+Test coverage is currently at 100%.
 
 #### Current test status
 

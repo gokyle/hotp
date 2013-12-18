@@ -1,7 +1,6 @@
 package hotp
 
 import (
-	"bytes"
 	"code.google.com/p/rsc/qr"
 	"crypto/hmac"
 	"crypto/rand"
@@ -44,12 +43,7 @@ type HOTP struct {
 // Counter returns the HOTP's 8-byte counter as an unsigned 64-bit
 // integer.
 func (otp HOTP) Counter() uint64 {
-	buf := bytes.NewBuffer(otp.counter[:])
-	var counter uint64
-	err := binary.Read(buf, binary.BigEndian, &counter)
-	if err != nil {
-		panic("counter should never be invalid")
-	}
+	counter := binary.BigEndian.Uint64(otp.counter[:])
 	return counter
 }
 
@@ -83,19 +77,7 @@ func (otp *HOTP) setCounter(counter uint64) bool {
 	if otp.counter == nil {
 		otp.counter = new([ctrSize]byte)
 	}
-	buf := new(bytes.Buffer)
-	err := binary.Write(buf, binary.BigEndian, counter)
-	if err != nil {
-		return false
-	}
-
-	ctr := zeroPad(buf.Bytes())
-	if ctr == nil {
-		return false
-	}
-	var ctr8 [ctrSize]byte
-	copy(ctr8[:], ctr)
-	copy(otp.counter[:], ctr8[:])
+	binary.BigEndian.PutUint64(otp.counter[:], counter)
 	return true
 }
 
@@ -103,24 +85,13 @@ func (otp *HOTP) setCounter(counter uint64) bool {
 // values. No check is done on the digits, but typical values are 6
 // and 8.
 func NewHOTP(key []byte, counter uint64, digits int) *HOTP {
-	buf := new(bytes.Buffer)
-	err := binary.Write(buf, binary.BigEndian, counter)
-	if err != nil {
-		return nil
-	}
-
-	ctr := zeroPad(buf.Bytes())
-	if ctr == nil {
-		return nil
-	}
-	var ctr8 [ctrSize]byte
-	copy(ctr8[:], ctr)
 	otp := &HOTP{
 		Key:    key,
 		Digits: digits,
 	}
 	otp.counter = new([ctrSize]byte)
-	copy(otp.counter[:], ctr8[:])
+	binary.BigEndian.PutUint64(otp.counter[:], counter)
+
 	return otp
 }
 
@@ -150,19 +121,6 @@ func (otp *HOTP) QR(label string) ([]byte, error) {
 		return nil, err
 	}
 	return code.PNG(), nil
-}
-
-// zeroPad takes an incoming bytes slice, and left pads zeros to
-// fill it out to the counter size.
-func zeroPad(in []byte) []byte {
-	inLen := len(in)
-	if inLen > ctrSize {
-		return in[:ctrSize]
-	}
-	start := ctrSize - inLen
-	out := make([]byte, ctrSize)
-	copy(out[start:], in)
-	return out
 }
 
 // truncate contains the DT function from the RFC; this is used to
