@@ -220,14 +220,18 @@ func TestURL(t *testing.T) {
 		t.FailNow()
 	}
 
+        // This should fail because the maximum size of an alphanumeric
+        // QR code with the lowest-level of error correction should
+        // max out at 4296 bytes. 8k may be a bit overkill... but it
+        // gets the job done. The value is read from the PRNG to
+        // increase the likelihood that the returned data is
+        // uncompressible.
 	var tooBigIdent = make([]byte, 8192)
 	_, err = io.ReadFull(PRNG, tooBigIdent)
 	if err != nil {
 		fmt.Printf("hotp: failed to read identity (%v)\n", err)
 		t.FailNow()
-	}
-
-	if _, err = otp.QR(string(tooBigIdent)); err == nil {
+	} else if _, err = otp.QR(string(tooBigIdent)); err == nil {
 		fmt.Println("hotp: QR code should fail to encode oversized URL")
 		t.FailNow()
 	}
