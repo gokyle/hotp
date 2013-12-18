@@ -24,6 +24,8 @@ const ctrSize = 8
 
 var ErrInvalidHOTPURL = errors.New("hotp: invalid HOTP url")
 
+var PRNG = rand.Reader
+
 // Type HOTP represents a new source for generating one-time passwords.
 type HOTP struct {
 	Key     []byte
@@ -180,11 +182,7 @@ func FromURL(urlString string) (*HOTP, string, error) {
 
 	v := u.Query()
 	if len(v) == 0 {
-		v, err = url.ParseQuery(u.Path[1:])
-		if err != nil {
-			return nil, "", err
-		}
-
+		return nil, "", ErrInvalidHOTPURL
 	}
 	if v.Get("secret") == "" {
 		return nil, "", ErrInvalidHOTPURL
@@ -226,14 +224,14 @@ func FromURL(urlString string) (*HOTP, string, error) {
 // randCounter parameter is true, the counter will be randomised.
 func GenerateHOTP(digits int, randCounter bool) (*HOTP, error) {
 	key := make([]byte, sha1.Size)
-	_, err := io.ReadFull(rand.Reader, key)
+	_, err := io.ReadFull(PRNG, key)
 	if err != nil {
 		return nil, err
 	}
 
 	var counter uint64
 	if randCounter {
-		ctr, err := rand.Int(rand.Reader, big.NewInt(int64(math.MaxInt64)))
+		ctr, err := rand.Int(PRNG, big.NewInt(int64(math.MaxInt64)))
 		if err != nil {
 			return nil, err
 		}

@@ -2,6 +2,8 @@ package hotp
 
 import "fmt"
 import "testing"
+import "bytes"
+import "io"
 
 var testKey = []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
 
@@ -21,6 +23,27 @@ func TestIncrement(t *testing.T) {
 			t.FailNow()
 		}
 		otp.Increment()
+	}
+}
+
+// This test ensures that the zero pad will always produce counter-sized byte
+// slices.
+func TestZeroPad(t *testing.T) {
+	var max = ctrSize * 2
+	var testIns = make([][]byte, max)
+	for i := 0; i < max; i++ {
+		testIns[i] = make([]byte, i)
+		for j := 0; j < i; j++ {
+			testIns[i][j] = 'A'
+		}
+	}
+
+	for i := 0; i < max; i++ {
+		out := zeroPad(testIns[i])
+		if len(out) != ctrSize {
+			fmt.Printf("hotp: zeroPad should always produce %d-byte slices", ctrSize)
+			t.FailNow()
+		}
 	}
 }
 
@@ -129,6 +152,11 @@ func TestYubiKey(t *testing.T) {
 
 	ykpub := "cccc52345777"
 
+	if _, _, ok := otp.YubiKey("abcd"); ok {
+		fmt.Println("hotp: accepted invalid YubiKey input")
+		t.FailNow()
+	}
+
 	for i := 0; i < len(out); i++ {
 		code := otp.OTP()
 		if ykCode, pubid, ok := otp.YubiKey(out[i]); !ok {
@@ -182,6 +210,54 @@ func TestURL(t *testing.T) {
 		fmt.Printf("hotp: mismatched OTPs\n")
 		fmt.Printf("\texpected: %s\n", code1)
 		fmt.Printf("\t  actual: %s\n", code2)
+	}
+
+	// There's not much we can do test the QR code, except to
+	// ensure it doesn't fail.
+	_, err = otp.QR(ident)
+	if err != nil {
+		fmt.Printf("hotp: failed to generate QR code PNG (%v)\n", err)
+		t.FailNow()
+	}
+
+	var tooBigIdent = make([]byte, 8192)
+	_, err = io.ReadFull(PRNG, tooBigIdent)
+	if err != nil {
+		fmt.Printf("hotp: failed to read identity (%v)\n", err)
+		t.FailNow()
+	}
+
+	if _, err = otp.QR(string(tooBigIdent)); err == nil {
+		fmt.Println("hotp: QR code should fail to encode oversized URL")
+		t.FailNow()
+	}
+}
+
+// This test attempts a variety of invalid urls against the parser
+// to ensure they fail.
+func TestBadURL(t *testing.T) {
+	var urlList = []string{
+		"http://google.com",
+		"",
+		"-",
+		"foo",
+		"otpauth:/foo/bar/baz",
+		"://",
+		"otpauth://totp/foo@bar?secret=ABCD",
+		"otpauth://hotp/secret=bar",
+		"otpauth://hotp/?secret=QUJDRA&algorithm=SHA256",
+		"otpauth://hotp/?digits=",
+		"otpauth://hotp/?secret=123",
+		"otpauth://hotp/?secret=MFRGGZDF&digits=ABCD",
+		"otpauth://hotp/?secret=MFRGGZDF&counter=ABCD",
+	}
+
+	for i := range urlList {
+		if _, _, err := FromURL(urlList[i]); err == nil {
+			fmt.Println("hotp: URL should not have parsed successfully")
+			fmt.Printf("\turl was: %s\n", urlList[i])
+			t.FailNow()
+		}
 	}
 }
 
@@ -344,6 +420,41 @@ func TestSerialisation(t *testing.T) {
 		fmt.Println("hotp: serialisation failed to preserve counter")
 		t.FailNow()
 	}
+
+	if _, err = Unmarshal([]byte{0x0}); err == nil {
+		fmt.Println("hotp: Unmarshal should have failed")
+		t.FailNow()
+	}
+}
+
+func TestGenerateHOTP(t *testing.T) {
+	_, err := GenerateHOTP(6, false)
+	if err != nil {
+		fmt.Printf("hotp: failed to generate random key value (%v)\n", err)
+		t.FailNow()
+	}
+
+	_, err = GenerateHOTP(8, true)
+	if err != nil {
+		fmt.Printf("hotp: failed to generate random key value (%v)\n", err)
+		t.FailNow()
+	}
+
+	PRNG = new(bytes.Buffer)
+	_, err = GenerateHOTP(8, true)
+	if err == nil {
+		fmt.Println("hotp: should have failed to generate random key value")
+		t.FailNow()
+	}
+
+	// should read just enough for the key
+	PRNG = bytes.NewBufferString("abcdeabcdeabcdeabcde")
+	_, err = GenerateHOTP(8, true)
+	if err == nil {
+		fmt.Println("hotp: should have failed to generate random key value")
+		t.FailNow()
+	}
+
 }
 
 func BenchmarkFromURL(b *testing.B) {
