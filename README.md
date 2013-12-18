@@ -13,7 +13,9 @@ alongside a text file containing the URL for the QR code. For more
 information, see the README in the file.
 
 See also the [godocs](https://godoc.org/github.com/gokyle/hotp/)
-for this package.
+for this package. The [hotpweb](https://github.com/gokyle/hotpweb/)
+package provides a simple webapp demonstrating the use of the Google
+Authenticator interaction.
 
 
 ### Storing Keys
@@ -135,6 +137,11 @@ into raw output from yubikey / the code / the counter):
 4. cccc52345777043269, 043269, counter = 4
 5. cccc52345777035666, 035666, counter = 5
 6. cccc52345777725326, 725325, counter = 6
+
+
+### TODO
+
+* Add example code.
 
 
 ### References

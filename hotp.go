@@ -1,7 +1,5 @@
 package hotp
 
-// TODO(kyle): add example code.
-
 import (
 	"bytes"
 	"code.google.com/p/rsc/qr"
