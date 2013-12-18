@@ -22,13 +22,17 @@ import (
 // RFC 4226 specifies the counter as being 8 bytes.
 const ctrSize = 8
 
+// ErrInvalidHOTPURL is returned via FromURL; it indicates a malformed
+// HOTP otpauth URL.
 var ErrInvalidHOTPURL = errors.New("hotp: invalid HOTP url")
 
 // PRNG is the source of random data; this is used by GenerateHOTP
 // and should be a cryptographically-secure PRNG.
 var PRNG = rand.Reader
 
-// Type HOTP represents a new source for generating one-time passwords.
+// HOTP represents a new key value for generating one-time passwords;
+// it contains the key used to construct one-time passwords and the
+// counter state used in the OTP generation.
 type HOTP struct {
 	Key     []byte
 	counter *[ctrSize]byte
@@ -313,9 +317,8 @@ func (otp *HOTP) Check(code string) bool {
 	if subtle.ConstantTimeCompare(codeBytes, genCode) != 1 {
 		otp.setCounter(otp.Counter() - 1)
 		return false
-	} else {
-		return true
 	}
+	return true
 }
 
 // Marshal serialises an HOTP key value as a DER-encoded byte slice.
