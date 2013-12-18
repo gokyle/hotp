@@ -32,7 +32,9 @@ var PRNG = rand.Reader
 
 // HOTP represents a new key value for generating one-time passwords;
 // it contains the key used to construct one-time passwords and the
-// counter state used in the OTP generation.
+// counter state used in the OTP generation. Digits contains the
+// number of digits that generated OTPs should output. Key is a
+// cryptographic secret, and should be treated as such.
 type HOTP struct {
 	Key     []byte
 	counter *[ctrSize]byte
