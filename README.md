@@ -87,11 +87,12 @@ to "Check key value"; the `IntegrityCheck` method will provide the
 the two values shown here (the initial code and the current counter)
 that may be used to verify the integrity of the key value.
 
-In the `testdata` directory, there are two files with the base name
-of "gauth_example", that contain the HOTP key values used in the
-test suite. The PNG image may be scanned in using a mobile phone;
-the text file contains the URL that the QR code is based on. The
-first several codes produced by this URL are:
+In the `testdata` directory, there are three files with the base name
+of "gauth_example" that contain the HOTP key values used in the
+test suite. The PNG image may be scanned in using a mobile phone,
+the text file contains the URL that the QR code is based on, and
+the `.key` file may be used with the `hotpcli` program. The first
+several codes produced by this URL are:
 
 0. 023667, counter = 0
 1. 641344, counter = 1
