@@ -313,6 +313,7 @@ func (otp *HOTP) Check(code string) bool {
 	}
 }
 
+// Marshal serialises an HOTP key value as a DER-encoded byte slice.
 func Marshal(otp *HOTP) ([]byte, error) {
 	var asnHOTP struct {
 		Key     []byte
@@ -325,6 +326,7 @@ func Marshal(otp *HOTP) ([]byte, error) {
 	return asn1.Marshal(asnHOTP)
 }
 
+// Unmarshal parses a DER-encoded serialised HOTP key value.
 func Unmarshal(in []byte) (otp *HOTP, err error) {
 	var asnHOTP struct {
 		Key     []byte

@@ -16,6 +16,37 @@ See also the [godocs](https://godoc.org/github.com/gokyle/hotp/)
 for this package.
 
 
+### Storing Keys
+
+> **These keys are cryptographic secrets.** Please store them with
+> all due caution! For example, they could be encrypted in a database
+> using [cryptobox](https://github.com/cryptobox/gocryptobox/).
+
+The HOTP keys can be serialised with the `Marshall` function; this preserves
+a "snapshot", so to speak, of the key value. Serialisation is done
+in DER-format:
+
+```
+SEQUENCE {
+	OCTET STRING
+	INTEGER
+	INTEGER
+}
+```
+
+Serialised key values can be parsed with the `Unmarshal` function;
+as a serialised key value is a snapshot, the counter state at the
+time of marshalling will be restored.
+
+If the key values are to be stored in a database, the key and counter
+values must be preserved. To avoid any potention issues, the counter
+value should be stored using the `Counter` method (i.e., as an
+`uint64`) and key values restored with `NewHOTP`. *It is strongly
+recommended that the `Key` field be stored securely.* The `Digit`
+field can be stored as constant in the program, and used whenever
+key values are loaded.
+
+
 ### Example Usages
 
 #### Case 1: Google Authenticator
