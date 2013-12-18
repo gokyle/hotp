@@ -24,7 +24,7 @@ Authenticator interaction.
 > all due caution! For example, they could be encrypted in a database
 > using [cryptobox](https://github.com/cryptobox/gocryptobox/).
 
-The HOTP keys can be serialised with the `Marshall` function; this preserves
+The HOTP keys can be serialised with the `Marshal` function; this preserves
 a "snapshot", so to speak, of the key value. Serialisation is done
 in DER-format:
 
@@ -58,9 +58,9 @@ can generate a new random HOTP source; this example saves a QR code
 to a file. The user can scan this QR code in with the app on their
 phone and use it to generate codes for the server.
 
-        // Generate a new, random 6-digit HOTP source with an initial
-        // counter of 0 (the second argument, if true, will randomise
-        // the counter).
+	// Generate a new, random 6-digit HOTP source with an initial
+	// counter of 0 (the second argument, if true, will randomise
+	// the counter).
 	otp, err := GenerateHOTP(6, false)
 	if err != nil {
 		// error handling elided
@@ -96,13 +96,13 @@ the text file contains the URL that the QR code is based on, and
 the `.key` file may be used with the `hotpcli` program. The first
 several codes produced by this URL are:
 
-0. 023667, counter = 0
-1. 641344, counter = 1
-2. 419615, counter = 2
-3. 692589, counter = 3
-4. 237233, counter = 4
-5. 711695, counter = 5
-6. 620195, counter = 6
+* 023667, counter = 0
+* 641344, counter = 1
+* 419615, counter = 2
+* 692589, counter = 3
+* 237233, counter = 4
+* 711695, counter = 5
+* 620195, counter = 6
 
 The codes may be checked against the app to ensure they are correct;
 these values are used in the test suite to ensure interoperability.
@@ -130,13 +130,13 @@ may be used to program a YubiKey to verify the package's interoperability.
 The first several codes produced by this configuration are (split
 into raw output from yubikey / the code / the counter):
 
-0. cccc52345777705179, 705179, counter = 0
-1. cccc52345777404068, 404068, counter = 1
-2. cccc52345777490143, 490143, counter = 2
-3. cccc52345777739740, 739740, counter = 3
-4. cccc52345777043269, 043269, counter = 4
-5. cccc52345777035666, 035666, counter = 5
-6. cccc52345777725326, 725325, counter = 6
+* cccc52345777705179, 705179, counter = 0
+* cccc52345777404068, 404068, counter = 1
+* cccc52345777490143, 490143, counter = 2
+* cccc52345777739740, 739740, counter = 3
+* cccc52345777043269, 043269, counter = 4
+* cccc52345777035666, 035666, counter = 5
+* cccc52345777725326, 725325, counter = 6
 
 
 ### TODO
@@ -175,6 +175,11 @@ format when generating URLs (and by extension, QR codes).
 
 * The [YubiKey manual](http://www.yubico.com/wp-content/uploads/2013/07/YubiKey-Manual-v3_1.pdf)
 contains documentation on the YubiKey HOTP format.
+
+
+### Author
+
+`hotp` was written by Kyle Isom <kyle@tyrfingr.is>.
 
 
 ### License
