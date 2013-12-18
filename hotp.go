@@ -1,5 +1,6 @@
-// TODO(kyle): add example code.
 package hotp
+
+// TODO(kyle): add example code.
 
 import (
 	"bytes"
