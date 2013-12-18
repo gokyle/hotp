@@ -326,6 +326,26 @@ func TestBadCheck(t *testing.T) {
 	}
 }
 
+func TestSerialisation(t *testing.T) {
+	otp := NewHOTP(rfcKey, 123456, 8)
+	out, err := Marshal(otp)
+	if err != nil {
+		fmt.Printf("hotp: failed to marshal HOTP (%v)\n", err)
+		t.FailNow()
+	}
+
+	otp2, err := Unmarshal(out)
+	if err != nil {
+		fmt.Printf("hotp: failed to unmarshal HOTP (%v)\n", err)
+		t.FailNow()
+	}
+
+	if otp.Counter() != otp2.Counter() {
+		fmt.Println("hotp: serialisation failed to preserve counter")
+		t.FailNow()
+	}
+}
+
 func BenchmarkFromURL(b *testing.B) {
 	url := "otpauth://hotp/kyle?counter=0&secret=EXZLUP7IGHQ673ZCP32RTLRU2N427Z6L"
 	for i := 0; i < b.N; i++ {

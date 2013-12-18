@@ -7,6 +7,7 @@ import (
 	"crypto/rand"
 	"crypto/sha1"
 	"crypto/subtle"
+	"encoding/asn1"
 	"encoding/base32"
 	"encoding/binary"
 	"errors"
@@ -69,6 +70,9 @@ func (otp HOTP) OTP() string {
 }
 
 func (otp *HOTP) setCounter(counter uint64) bool {
+	if otp.counter == nil {
+		otp.counter = new([ctrSize]byte)
+	}
 	buf := new(bytes.Buffer)
 	err := binary.Write(buf, binary.BigEndian, counter)
 	if err != nil {
@@ -307,4 +311,35 @@ func (otp *HOTP) Check(code string) bool {
 	} else {
 		return true
 	}
+}
+
+func Marshal(otp *HOTP) ([]byte, error) {
+	var asnHOTP struct {
+		Key     []byte
+		Counter *big.Int
+		Digits  int
+	}
+	asnHOTP.Key = otp.Key[:]
+	asnHOTP.Counter = new(big.Int).SetUint64(otp.Counter())
+	asnHOTP.Digits = otp.Digits
+	return asn1.Marshal(asnHOTP)
+}
+
+func Unmarshal(in []byte) (otp *HOTP, err error) {
+	var asnHOTP struct {
+		Key     []byte
+		Counter *big.Int
+		Digits  int
+	}
+	_, err = asn1.Unmarshal(in, &asnHOTP)
+	if err != nil {
+		return
+	}
+
+	otp = &HOTP{
+		Key:    asnHOTP.Key[:],
+		Digits: asnHOTP.Digits,
+	}
+	otp.setCounter(asnHOTP.Counter.Uint64())
+	return
 }
