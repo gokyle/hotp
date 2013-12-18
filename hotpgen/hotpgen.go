@@ -46,4 +46,15 @@ func main() {
 		fmt.Printf("! %v\n", err.Error())
 		return
 	}
+
+	keyFile, err := hotp.Marshal(otp)
+	if err != nil {
+		fmt.Printf("! %v\n", err.Error())
+		return
+	}
+	err = ioutil.WriteFile(filename+".key", keyFile, 0644)
+	if err != nil {
+		fmt.Printf("! %v\n", err.Error())
+		return
+	}
 }
