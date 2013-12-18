@@ -123,19 +123,6 @@ func (otp *HOTP) QR(label string) ([]byte, error) {
 	return code.PNG(), nil
 }
 
-// zeroPad takes an incoming bytes slice, and left pads zeros to
-// fill it out to the counter size.
-func zeroPad(in []byte) []byte {
-	inLen := len(in)
-	if inLen > ctrSize {
-		return in[:ctrSize]
-	}
-	start := ctrSize - inLen
-	out := make([]byte, ctrSize)
-	copy(out[start:], in)
-	return out
-}
-
 // truncate contains the DT function from the RFC; this is used to
 // deterministically select a sequence of 4 bytes from the HMAC
 // counter hash.
