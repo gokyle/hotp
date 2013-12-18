@@ -1,3 +1,4 @@
+// TODO(kyle): add example code.
 package hotp
 
 import (
@@ -24,6 +25,8 @@ const ctrSize = 8
 
 var ErrInvalidHOTPURL = errors.New("hotp: invalid HOTP url")
 
+// PRNG is the source of random data; this is used by GenerateHOTP
+// and should be a cryptographically-secure PRNG.
 var PRNG = rand.Reader
 
 // Type HOTP represents a new source for generating one-time passwords.
@@ -144,10 +147,12 @@ func (otp *HOTP) QR(label string) ([]byte, error) {
 	return code.PNG(), nil
 }
 
+// zeroPad takes an incoming bytes slice, and left pads zeros to
+// fill it out to the counter size.
 func zeroPad(in []byte) []byte {
 	inLen := len(in)
 	if inLen > ctrSize {
-		return in[:8]
+		return in[:ctrSize]
 	}
 	start := ctrSize - inLen
 	out := make([]byte, ctrSize)
@@ -155,6 +160,9 @@ func zeroPad(in []byte) []byte {
 	return out
 }
 
+// truncate contains the DT function from the RFC; this is used to
+// deterministically select a sequence of 4 bytes from the HMAC
+// counter hash.
 func truncate(in []byte) int64 {
 	offset := int(in[len(in)-1] & 0xF)
 	p := in[offset : offset+4]
