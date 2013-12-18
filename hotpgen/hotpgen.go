@@ -19,10 +19,10 @@ func main() {
 	}
 
 	otp, err := hotp.GenerateHOTP(*digits, *doRand)
-	    if err != nil {
-			fmt.Printf("! %v\n", err.Error())
-			return
-		}
+	if err != nil {
+		fmt.Printf("! %v\n", err.Error())
+		return
+	}
 
 	url := otp.URL(label)
 	png, err := otp.QR(label)
