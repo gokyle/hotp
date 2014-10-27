@@ -71,7 +71,7 @@ phone and use it to generate codes for the server.
 		// error handling elided
 	}
 
-	err = ioutil.WriteFile("user@example.net.png", qr
+	err = ioutil.WriteFile("user@example.net.png", qrCode
 	if err != nil {
 		// error handling elided
 	}
